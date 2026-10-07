@@ -17,7 +17,7 @@
 | Portal Socio con QR, pagos y visitas propios | Implementado |
 | Reportes y CSV | Implementado |
 | Personal y auditoría JWT | Implementado |
-| Diseño oscuro adaptable | Implementado |
+| Diseño claro adaptable con acento azul cobalto | Implementado |
 | Prototipo previo en docs/legacy-demo | Conservado |
 
 ## Validación

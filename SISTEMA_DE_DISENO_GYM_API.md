@@ -2,22 +2,22 @@
 
 ## Dirección visual
 
-Panel deportivo moderno, limpio y profesional. Fondo grafito, superficies oscuras, acento verde lima y densidad moderada para operaciones de recepción.
+Panel deportivo moderno, limpio y profesional. Fondo gris azulado claro, superficies blancas, acento azul cobalto y densidad moderada para operaciones de recepción. El login utiliza un fondo azul pastel.
 
 ## Tokens
 
 | Token | Valor | Uso |
 | --- | --- | --- |
-| Fondo | `#111413` | Área principal |
-| Superficie | `#191d1b` | Tarjetas |
-| Borde | `#2a302c` | Separadores |
-| Texto principal | `#f1f3ef` | Títulos |
-| Texto secundario | `#8b948e` | Ayuda |
-| Acento | `#c2f66b` | CTA y navegación |
-| Error | `#fa8585` | Rechazos |
-| Advertencia | `#eabb78` | Próximos vencimientos |
+| Fondo | `#f3f6fb` | Área principal |
+| Superficie | `#ffffff` | Tarjetas |
+| Borde | `#e2e8f0` | Separadores |
+| Texto principal | `#172338` | Títulos |
+| Texto secundario | `#64748b` | Ayuda |
+| Acento | `#2563eb` | CTA y navegación |
+| Error | `#b91c1c` | Rechazos |
+| Advertencia | `#9a3412` | Próximos vencimientos |
 
-Tokens CSS en `src/base.css`; Tailwind v4 declara `pulse` y `graphite` en `src/index.css`.
+Tokens CSS en `src/base.css`; Tailwind v4 declara `pulse` y `cloud` en `src/index.css`. `--accent` comparte el azul de botones, navegación y gráficos. Los estados de éxito conservan el verde semántico.
 
 ## Tipografía y espaciado
 
@@ -33,7 +33,7 @@ Tokens CSS en `src/base.css`; Tailwind v4 declara `pulse` y `graphite` en `src/i
 | Componente | Comportamiento |
 | --- | --- |
 | Layout / PageHeading | Menú por rol, usuario, API y fecha Bogotá |
-| Primary / Secondary | CTA lima y acción secundaria con borde |
+| Primary / Secondary | CTA azul con texto blanco y acción secundaria con borde |
 | Badge | Verde Activo, rojo Vencido, gris Inactivo; texto además de color |
 | Alert / ErrorBox | Icono, título y explicación accesible |
 | Modal | Dialog nativo, cierre con botón y Escape |

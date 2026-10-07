@@ -11,7 +11,7 @@
 
 **PULSE Gym OS** es un sistema de control de gimnasios que integra la administración de socios, planes, membresías, cobros y accesos con un portal privado para los socios.
 
-El backend de **Spring Boot** ofrece una API REST con persistencia **H2/JPA**, contraseñas BCrypt y sesiones **JWT HS256**. El frontend de **React + Tailwind CSS v4** utiliza un diseño deportivo oscuro, acentos verde lima y componentes compartidos. Los permisos **RBAC** se aplican tanto en React Router como en Spring Security.
+El backend de **Spring Boot** ofrece una API REST con persistencia **H2/JPA**, contraseñas BCrypt y sesiones **JWT HS256**. El frontend de **React + Tailwind CSS v4** utiliza un diseño deportivo claro, fondo gris azulado, tarjetas blancas, acentos azul cobalto y componentes compartidos. Los permisos **RBAC** se aplican tanto en React Router como en Spring Security.
 
 ### Funciones principales
 
