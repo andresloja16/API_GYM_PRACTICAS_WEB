@@ -1,0 +1,13 @@
+node_modules/
+*.log
+.env
+.env.*
+!.env.example
+target/
+data/
+frontend-app-ing-web/dist/
+playwright-report/
+test-results/
+.DS_Store
+.idea/
+*.iml

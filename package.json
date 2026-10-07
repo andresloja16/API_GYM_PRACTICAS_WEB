@@ -1,0 +1,12 @@
+{
+  "name": "pulse-gym-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo full-stack para control de gimnasios: Spring Boot y React",
+  "scripts": {
+    "start": "npm --prefix frontend-app-ing-web run dev",
+    "dev": "npm --prefix frontend-app-ing-web run dev",
+    "build": "npm --prefix frontend-app-ing-web run build",
+    "test:e2e": "npm --prefix frontend-app-ing-web run test:e2e"
+  }
+}

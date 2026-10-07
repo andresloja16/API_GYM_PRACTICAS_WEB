@@ -1,0 +1,7 @@
+import {useState} from 'react';
+import {useResource} from '../hooks/useResource';
+import {formatDate,currency} from '../services/api';
+import {PageHeading} from '../components/layout/Layout';
+import {Loading,ErrorBox} from '../components/common/UI';
+import {Receipt} from '../components/members/MemberTable';
+export default function PaymentsPage(){const payments=useResource('/payments'),[receipt,setReceipt]=useState(null);return <><PageHeading title="Pagos" subtitle="Cada renovación, registrada y bajo control."/>{payments.loading&&!payments.data&&<Loading/>}{payments.error&&<ErrorBox message={payments.error} retry={payments.reload}/>}<article className="card table-card"><div className="table-header"><h2>Historial de pagos</h2><span className="counter">{payments.data?.length||0} operaciones</span></div><div className="table-scroll"><table><thead><tr><th>Comprobante</th><th>Socio</th><th>Plan</th><th>Fecha</th><th>Método</th><th>Total COP</th><th>Acciones</th></tr></thead><tbody>{payments.data?.length?payments.data.map(p=><tr key={p.id}><td>PG-{String(p.id).padStart(6,'0')}</td><td>{p.memberName}</td><td>{p.planName}</td><td>{formatDate(p.createdAt)}</td><td>{p.method}</td><td>{currency(p.amount)}</td><td><button className="text-button" onClick={()=>setReceipt(p)}>Ver comprobante</button></td></tr>):<tr><td colSpan="7" className="empty">Sin pagos registrados. Renueva una membresía desde Socios.</td></tr>}</tbody></table></div></article>{receipt&&<Receipt receipt={receipt} onClose={()=>setReceipt(null)}/>}</>}

@@ -1,0 +1,8 @@
+import {Download} from 'lucide-react';
+import {useResource} from '../hooks/useResource';
+import {currency,exportMembers} from '../services/api';
+import {PageHeading} from '../components/layout/Layout';
+import {Loading,ErrorBox} from '../components/common/UI';
+import {Kpis} from './DashboardPage';
+import AttendanceChart from '../components/dashboard/AttendanceChart';
+export default function ReportsPage(){const dash=useResource('/dashboard'),payments=useResource('/payments'),members=useResource('/members');const total=payments.data?.reduce((s,p)=>s+Number(p.amount),0)||0;return <><PageHeading title="Reportes" subtitle="Convierte los números en mejores decisiones."><button className="primary" disabled={!members.data} onClick={()=>exportMembers(members.data)}><Download/> Exportar socios</button></PageHeading>{dash.error&&<ErrorBox message={dash.error} retry={dash.reload}/>} {members.error&&<ErrorBox message={members.error} retry={members.reload}/>} {payments.error&&<ErrorBox message={payments.error} retry={payments.reload}/>} {dash.loading&&!dash.data&&<Loading/>}{dash.data&&<><Kpis data={dash.data}/><div className="report-grid"><AttendanceChart bars={dash.data.attendance}/><article className="card report-stat"><h2>Resumen de cobros</h2><p className="card-subtitle">Total histórico de pagos registrados</p><strong>{currency(total)}</strong><div className="receipt-row"><span>Operaciones</span><b>{payments.data?.length||0}</b></div><div className="receipt-row"><span>Socios registrados</span><b>{members.data?.length||0}</b></div><div className="receipt-row"><span>Visitas de hoy</span><b>{dash.data.visitsToday}</b></div><p className="card-subtitle">Los montos corresponden a pagos registrados en el sistema, en pesos colombianos.</p></article></div></>}</>}

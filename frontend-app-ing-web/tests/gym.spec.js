@@ -1,0 +1,41 @@
+import {test,expect} from '@playwright/test';
+import path from 'node:path';
+const screenshot=(page,file)=>page.screenshot({path:path.resolve('../docs/screenshots',file),fullPage:true});
+async function login(page,label){await page.goto('/login');await expect(page.getByText('API: ONLINE (3000)',{exact:true})).toBeVisible();await page.getByRole('button',{name:label,exact:true}).click();await expect(page.getByRole('button',{name:'Cerrar sesión'}).first()).toBeAttached();}
+test('login y registro público muestran la API online',async({page})=>{await page.goto('/login');await expect(page.getByText('API: ONLINE (3000)',{exact:true})).toBeVisible();await screenshot(page,'01_login_page.png');await page.getByRole('link',{name:'Crear cuenta de socio'}).click();await expect(page.getByRole('heading',{name:'Únete a PULSE.'})).toBeVisible();await screenshot(page,'02_registro_socios.png');});
+test('administrador: dashboard, personal, reportes y auditoría',async({page})=>{const errors=[];page.on('pageerror',e=>errors.push(e.message));await login(page,'Administrador');await expect(page.getByRole('heading',{name:'Dashboard .',exact:true})).toBeVisible();await expect(page.getByText('Socios Activos',{exact:true})).toBeVisible();await expect(page.locator('.member-cell strong').first()).toBeVisible();await screenshot(page,'07_admin_dashboard_panel.png');await page.getByRole('link',{name:'Seguridad',exact:true}).click();await expect(page.getByText('HS256',{exact:true})).toBeVisible();await screenshot(page,'08_admin_seguridad_jwt.png');await page.getByRole('link',{name:'Personal',exact:true}).click();await expect(page.getByText('EMP-002',{exact:true})).toBeVisible();await page.getByRole('link',{name:'Reportes',exact:true}).click();await expect(page.getByText('Resumen de cobros',{exact:true})).toBeVisible();await screenshot(page,'09_reportes.png');expect(errors).toEqual([]);});
+test('socio: perfil privado, pagos propios y acceso 403',async({page})=>{await login(page,'Socio');await expect(page.getByRole('heading',{name:'Mi perfil .',exact:true})).toBeVisible();await expect(page.getByText('1023456789',{exact:true})).toBeVisible();await screenshot(page,'03_socio_perfil.png');await page.goto('/dashboard');await expect(page.getByText('403 · ACCESO RESTRINGIDO')).toBeVisible();await screenshot(page,'04_socio_acceso_denegado_403.png');const status=await page.evaluate(async()=>{const session=JSON.parse(sessionStorage.getItem('pulse-session'));return (await fetch('/api/members',{headers:{Authorization:`Bearer ${session.token}`}})).status});expect(status).toBe(403);});
+test('recepción: check-in, búsqueda, renovación y comprobante',async({page})=>{
+  await login(page,'Recepción');
+  const expiredDni=await page.evaluate(async()=>{
+    const session=JSON.parse(sessionStorage.getItem('pulse-session'));
+    const health=await (await fetch('/api/health')).json();
+    const expiry=new Date(health.date+'T12:00:00');expiry.setDate(expiry.getDate()-1);
+    const dni=String(Date.now()).slice(-12);
+    const response=await fetch('/api/members',{method:'POST',headers:{Authorization:`Bearer ${session.token}`,'Content-Type':'application/json'},body:JSON.stringify({name:'Socio Renovación Demo',dni,email:'renovacion@test.com',planId:'full',expiry:expiry.toISOString().slice(0,10),enabled:true})});
+    if(!response.ok)throw new Error('No se pudo preparar el socio de prueba');return dni;
+  });
+  await page.getByLabel('Cédula del socio').fill('1023456789');
+  await page.getByRole('button',{name:'Registrar Ingreso'}).click();
+  await expect(page.locator('.quick-body').getByText('Acceso Permitido',{exact:true})).toBeVisible();
+  await screenshot(page,'05_recepcion_check_in.png');
+  await page.getByLabel('Cédula del socio').fill(expiredDni);
+  await page.getByRole('button',{name:'Registrar Ingreso'}).click();
+  await expect(page.locator('.quick-body').getByText('Membresía Vencida',{exact:true})).toBeVisible();
+  await screenshot(page,'10_membresia_vencida.png');
+  await page.getByLabel('Cédula del socio').fill('1067890123');
+  await page.getByRole('button',{name:'Registrar Ingreso'}).click();
+  await expect(page.getByText('Socio Inactivo',{exact:true})).toBeVisible();
+  await page.getByRole('link',{name:'Socios',exact:true}).click();
+  await page.getByLabel('Buscar por nombre o cédula').fill(expiredDni);
+  await expect(page.getByText('Socio Renovación Demo',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Renovar'}).click();
+  await page.getByRole('button',{name:'Confirmar pago y renovar'}).click();
+  await expect(page.getByRole('heading',{name:'Pago registrado',exact:true})).toBeVisible();
+  await screenshot(page,'06_renovacion_comprobante.png');
+  await page.getByRole('button',{name:'Cerrar ventana'}).click();
+  await expect(page.getByRole('table').getByText('Activo',{exact:true})).toBeVisible();
+  await page.goto('/seguridad');await expect(page.getByText('403 · ACCESO RESTRINGIDO')).toBeVisible();
+});
+test('registro real crea socio inactivo sin permisos de personal',async({page})=>{await page.goto('/registro');await page.getByLabel('Nombre completo').fill('Socio Prueba E2E');const stamp=String(Date.now());await page.getByLabel('Cédula',{exact:true}).fill(stamp.slice(-12));await page.getByLabel('Correo electrónico').fill(`e2e-${stamp}@test.com`);await page.getByLabel('Contraseña',{exact:true}).fill('Password123');await page.getByRole('button',{name:'Crear cuenta',exact:true}).click();await expect(page.getByRole('heading',{name:'Mi perfil .',exact:true})).toBeVisible();await expect(page.getByText('Inactivo',{exact:true})).toBeVisible();await page.goto('/socios');await expect(page.getByText('403 · ACCESO RESTRINGIDO')).toBeVisible();});
+test('dashboard móvil conserva navegación y no desborda la página',async({page})=>{await page.setViewportSize({width:390,height:844});await login(page,'Administrador');await expect(page.getByRole('heading',{name:'Dashboard .',exact:true})).toBeVisible();await expect(page.locator('.member-cell strong').first()).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);await screenshot(page,'11_dashboard_mobile.png');await page.getByRole('link',{name:'Check-in',exact:true}).click();await expect(page.getByLabel('Cédula del socio')).toBeVisible();await page.getByRole('button',{name:'Cerrar sesión'}).click();await expect(page.getByRole('button',{name:'Iniciar sesión',exact:true})).toBeVisible();});
